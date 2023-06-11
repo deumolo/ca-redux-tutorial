@@ -8,7 +8,6 @@ import {
 } from '../features/cart/cartSlice';
 
 const CartItem = ({ id, img, title, price, amount }) => {
-
   const dispatch = useDispatch();
 
   return (
@@ -21,7 +20,6 @@ const CartItem = ({ id, img, title, price, amount }) => {
           <div
             onClick={() => {
               dispatch(deleteItem(id));
-              dispatch(calculateTotals());
             }}
             className="remove-btn"
           >
@@ -32,7 +30,6 @@ const CartItem = ({ id, img, title, price, amount }) => {
           <button
             onClick={() => {
               dispatch(incrementItem(id));
-              dispatch(calculateTotals());
             }}
             className="amount-btn"
           >
@@ -42,7 +39,6 @@ const CartItem = ({ id, img, title, price, amount }) => {
           <button
             onClick={() => {
               dispatch(decrementItem(id));
-              dispatch(calculateTotals());
             }}
             className="amount-btn"
           >
