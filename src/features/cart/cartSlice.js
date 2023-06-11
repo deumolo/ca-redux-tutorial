@@ -5,7 +5,7 @@ const url = 'https://course-api.com/react-useReducer-cart-project';
 
 const initialState = {
   cartItems: [],
-  amount: [...cartItems].length,
+  amount: 0,
   total: 0,
   isLoading: true,
 };
