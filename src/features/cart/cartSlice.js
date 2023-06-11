@@ -23,9 +23,16 @@ export const getCartItems = createAsyncThunk(
   async (_, thunkApi) => {
     try {
       const resp = await axios.get(url);
+      //console.log(getState());
+      //console.log(getState().cart);
+      //thunkApi.dispatch(toggle());
       return resp.data;
     } catch (error) {
-      return thunkApi.rejectWithValue(error);
+      //return thunkApi.rejectWithValue('Something went wrong');
+      return thunkApi.rejectWithValue({
+        axiosError: error,
+        customError: 'Something went wrong',
+      });
     }
   }
 );
@@ -76,7 +83,14 @@ const cartSlice = createSlice({
     },
     [getCartItems.rejected]: (state, action) => {
       state.isLoading = false;
-      console.log(action);
+      //Using text as parameter
+      //console.log(action.payload);
+      //Using axios error object
+      //console.log(action.payload.message);
+      //Using custom error object
+      //console.log(action.payload.axiosError);
+      //console.log(action.payload.customError);
+      console.log(action.payload);
     },
   },
 });
