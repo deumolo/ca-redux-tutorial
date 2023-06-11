@@ -1,0 +1,125 @@
+import { features } from "process"
+
+Redux tutorial
+
+1.- La configuración inicial de una store nueva es la siguiente:
+import { configureStore } from '@reduxjs/toolkit';
+
+export const store = configureStore({
+  reducer: {},
+});
+
+2.- En index.js se importa Provider de react-redux y la store que creamos,
+una vez importado todo esto, se envuelve la App principal con el Provider pasando
+el store creado como parametro
+
+3.- Un slice es un feature de nuestra aplicación
+
+4.- Una costumbre no obligada es crear un folder de features en nuestro proyecto
+
+5.- Un ejemplo de un slice recien creado es el siguiente:
+import { createSlice } from '@reduxjs/toolkit';
+
+const initialState = {
+  cartItems: [],
+  amount: 0,
+  total: 0,
+  isLoading: true,
+};
+
+const cartSlice = createSlice({
+  name: 'cart',
+  initialState,
+});
+
+console.log(cartSlice);
+
+6.- Este objecto cartSlice incluye un reducer creado automaticamente por createSlice
+
+7.- Este reducer se tiene que exportar, y por convención se exporta automaticamente la propiedad
+reducer de cartSlice como en el siguiente ejemplo:
+
+export default cartSlice.reducer;
+
+8.- Un ejemplo de la store incluyendo el nuevo reducer es el siguiente:
+export const store = configureStore({
+    reducer: {
+      cart: cartReducer
+    },
+  });
+
+9.- Para acceder a la store desde un componente se utiliza el hook useSelector
+
+10.- Un ejemplo de como se utiliza el hook useSelector es el siguiente:
+const cart = useSelector((state) => state.cart);
+
+
+
+
+.- En las acciones de cada reducer se puede usar return para actualizar el state, pero tenemos que estar muy seguros 
+de mantener los valores que no queremos cambiar; esto sería como usar el metodo tradicional de useState con el prev
+
+.- En cada archivo de slice se exportan las acciones desde el objeto slice creado con createSlice como el siguiente ejemplo:
+export const { clearCart, deleteItem, incrementItem, decrementItem } = cartSlice.actions;
+
+.- En el componente que se quiere usar las acciones se importan como el siguiente ejemplo:
+import { deleteItem, incrementItem, decrementItem } from '../features/cart/cartSlice';
+
+.- Para usar las acciones se utiliza el hook useDispatch como el siguiente ejemplo:
+  const dispatch = useDispatch();
+
+  const handleDelete = (id) => {
+    dispatch(deleteItem(id));
+  };
+
+  .- Para hacer llamadas a una api y llenar state en diferentes slices se utiliza el middleware createAsyncThunk como el siguiente ejemplo:
+  export const getCartItems = createAsyncThunk('cart/getCartItems', () => {
+  return fetch(url)
+    .then((response) => response.json())
+    .catch((error) => console.log(error));
+});
+
+Como primer parametro recibe un string que es el nombre de la acción, 
+y como segundo parametro recibe una función que es la que hace la llamada a la api y esta retorna una promesa.
+
+En el reducer se debe crear un objeto extraReducers que es donde se va a manejar la acción que retorna la promesa, 
+estas funciones temporales pueden manejar los diferentes estados de la llamada api, se puede seguir el siguiente ejemplo:
+  extraReducers: {
+    [getCartItems.pending]: (state) => {
+      state.isLoading = true;
+    },
+    [getCartItems.fulfilled]: (state, action) => {
+      state.isLoading = false;
+      state.cartItems = action.payload;
+    },
+    [getCartItems.rejected]: (state) => {
+      state.isLoading = false;
+    },
+  },
+
+.- Si se quisiera usar axios en lugar de fetch dentro de la llamada a la api se puede seguir el siguiente ejemplo:
+export const getCartItems = createAsyncThunk(
+  'cart/getCartItems',
+  async (_, thunkApi) => {
+    try {
+      const resp = await axios.get(url);
+      return resp.data;
+    } catch (error) {
+      return thunkApi.rejectWithValue(error);
+    }
+  }
+);
+
+.- Dentro de la llamada api se puede usar el segundo parametro que recibe la función que es el objeto thunkApi 
+para realizar las siguientes operaciones:
+
+Obtener el estado de toda la aplicación:
+getState();
+
+Ejecutar funciones de un slice:
+thunkApi.dispatch(toggle());
+
+Dentro del catch enviar un objeto error al extraReducer: 
+return thunkApi.rejectWithValue('Something went wrong');
+
+
